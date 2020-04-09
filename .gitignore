@@ -1,0 +1,29 @@
+SD_Controller.cache
+SD_Controller.hw
+SD_Controller.ip_user_files
+SD_Controller.runs
+SD_Controller.sim
+SD_Controller.tmp
+SD_Controller.xpr
+*.log
+*.jou
+*.str
+.Xil
+*.cmd
+
+# Standart IP
+SD_Controller.srcs/*/ip/*/*/** 
+SD_Controller.srcs/*/ip/*/*
+!SD_Controller.srcs/*/ip/*/*.xci
+
+# Custom IP
+SD_Controller.srcs/*/IpCustom/*/*
+!SD_Controller.srcs/*/IpCustom/*/component.xml
+!SD_Controller.srcs/*/IpCustom/*/hdl/
+!SD_Controller.srcs/*/IpCustom/*/xgui/
+
+
+# BD design
+SD_Controller.srcs/*/bd/**/*.*
+!SD_Controller.srcs/*/bd/*/*.bd
+!SD_Controller.srcs/*/bd/*/ui/*.ui

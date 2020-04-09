@@ -54,7 +54,7 @@ end SDPhy;
 
 architecture rtl of SDPhy is
 
-	-- Входные данные, параметры и управление
+	-- Р’С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ, РїР°СЂР°РјРµС‚СЂС‹ Рё СѓРїСЂР°РІР»РµРЅРёРµ
 	signal	TxFifoDataW		: std_logic_vector(14 downto 0);
 	signal	TxFifoRead		: std_logic;
 	signal	TxFifoDataR		: std_logic_vector(14 downto 0);
@@ -74,12 +74,12 @@ architecture rtl of SDPhy is
 	signal	ReadDummy		: std_logic;
 	signal	ReadBusy		: std_logic;
 	signal	ReadResp		: std_logic;
-	-- Управляющий автомат для режимов cMODE_DUMMY, cMODE_TX
+	-- РЈРїСЂР°РІР»СЏСЋС‰РёР№ Р°РІС‚РѕРјР°С‚ РґР»СЏ СЂРµР¶РёРјРѕРІ cMODE_DUMMY, cMODE_TX
 	type	TSM_SD_PHY_TX	is (sIdle, sDummy, sTxBits);
 	signal	smSdPhyTx		: TSM_SD_PHY_TX;
 	signal	cntrDummy		: std_logic_vector( 7 downto 0);
 	signal	cntrTxBits		: std_logic_vector( 2 downto 0);
-	-- Управляющий автомат для режимов cMODE_RX, cMODE_BUSY, cMODE_RESP, cMODE_TOKEN
+	-- РЈРїСЂР°РІР»СЏСЋС‰РёР№ Р°РІС‚РѕРјР°С‚ РґР»СЏ СЂРµР¶РёРјРѕРІ cMODE_RX, cMODE_BUSY, cMODE_RESP, cMODE_TOKEN
 	type	TSM_SD_PHY_RX	is (sIdle,  sRxBits, sBusy, sResp, sToken, sWait);
 	signal	smSdPhyRx		: TSM_SD_PHY_RX;
 	signal	SdMiso			: std_logic;
@@ -92,25 +92,25 @@ architecture rtl of SDPhy is
 	signal	RespCmd			: std_logic;
 	signal	cntrRxResp		: std_logic_vector( 2 downto 0);
 	signal	ErShiftBits		: std_logic_vector( 7 downto 0);
-	-- Обработка протокола SPI
+	-- РћР±СЂР°Р±РѕС‚РєР° РїСЂРѕС‚РѕРєРѕР»Р° SPI
 	signal	TxShiftBits		: std_logic_vector( 7 downto 0);
 	signal	RxShiftBits		: std_logic_vector( 7 downto 0);
 	signal	RxShfitWrite	: std_logic;
 	signal	SdClkEn			: std_logic;
 	signal	CmdComplete		: std_logic;
 	signal	CmdCompleteD	: std_logic;
-	-- Выходные данные и статус
+	-- Р’С‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ Рё СЃС‚Р°С‚СѓСЃ
 	signal	RxFifoDataW		: std_logic_vector(14 downto 0);
 	signal	RxFifoWrite		: std_logic;
 	signal	RxFifoRead		: std_logic;
 	signal	RxFifoDataR		: std_logic_vector(14 downto 0);	
 	signal	RxFifoEmpty		: std_logic;
-	-- Константы
-	-- Максимальное количество тактов для генерации частоты инициализации
+	-- РљРѕРЅСЃС‚Р°РЅС‚С‹
+	-- РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚Р°РєС‚РѕРІ РґР»СЏ РіРµРЅРµСЂР°С†РёРё С‡Р°СЃС‚РѕС‚С‹ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
 	constant	cLOW_COUNT	: integer := 127;
-	-- Максимальное количество тактов для генерации частоты работы
+	-- РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚Р°РєС‚РѕРІ РґР»СЏ РіРµРЅРµСЂР°С†РёРё С‡Р°СЃС‚РѕС‚С‹ СЂР°Р±РѕС‚С‹
 	constant	cFAST_COUNT	: integer := 1; 
-	-- Номер бита, используемого для указания признака завершения обработки команд
+	-- РќРѕРјРµСЂ Р±РёС‚Р°, РёСЃРїРѕР»СЊР·СѓРµРјРѕРіРѕ РґР»СЏ СѓРєР°Р·Р°РЅРёСЏ РїСЂРёР·РЅР°РєР° Р·Р°РІРµСЂС€РµРЅРёСЏ РѕР±СЂР°Р±РѕС‚РєРё РєРѕРјР°РЅРґ
 	constant	cBIT_END	: integer := 8;	 
 	
 	function bool_to_logic( iBool : boolean ) return std_logic is
@@ -127,7 +127,7 @@ architecture rtl of SDPhy is
 begin
 
 	----------------------------------------------------------------------------
-	-- Входные данные, параметры и формирование частот
+	-- Р’С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ, РїР°СЂР°РјРµС‚СЂС‹ Рё С„РѕСЂРјРёСЂРѕРІР°РЅРёРµ С‡Р°СЃС‚РѕС‚
 	----------------------------------------------------------------------------
 	
 	TxFifoDataW <= iPhyMode & iPhyTxData;
@@ -218,7 +218,7 @@ begin
 	TxFifoRead <= ReadTx or ReadRx or ReadDummy or ReadBusy or ReadResp;
 	
 	----------------------------------------------------------------------------
-	-- Управляющий автомат для режимов cMODE_DUMMY, cMODE_TX
+	-- РЈРїСЂР°РІР»СЏСЋС‰РёР№ Р°РІС‚РѕРјР°С‚ РґР»СЏ СЂРµР¶РёРјРѕРІ cMODE_DUMMY, cMODE_TX
 	----------------------------------------------------------------------------
 	process (sclk) begin
 		if (rising_edge(sclk)) then
@@ -269,7 +269,7 @@ begin
 	end process;
 	
 	----------------------------------------------------------------------------
-	-- Управляющий автомат для режимов cMODE_RX, cMODE_BUSY, cMODE_RESP, cMODE_TOKEN
+	-- РЈРїСЂР°РІР»СЏСЋС‰РёР№ Р°РІС‚РѕРјР°С‚ РґР»СЏ СЂРµР¶РёРјРѕРІ cMODE_RX, cMODE_BUSY, cMODE_RESP, cMODE_TOKEN
 	----------------------------------------------------------------------------
 	process (sclk) begin
 		if (rising_edge(sclk)) then
@@ -413,7 +413,7 @@ begin
 	end process;
 	
 	----------------------------------------------------------------------------
-	-- Обработка протокола SPI
+	-- РћР±СЂР°Р±РѕС‚РєР° РїСЂРѕС‚РѕРєРѕР»Р° SPI
 	----------------------------------------------------------------------------
 	process (sclk) begin
 		if (rising_edge(sclk)) then
@@ -518,7 +518,7 @@ begin
 	end process;
 	
 	----------------------------------------------------------------------------
-	-- Выходные данные и статус
+	-- Р’С‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ Рё СЃС‚Р°С‚СѓСЃ
 	----------------------------------------------------------------------------	
 	process (sclk) begin
 		if (rising_edge(sclk)) then

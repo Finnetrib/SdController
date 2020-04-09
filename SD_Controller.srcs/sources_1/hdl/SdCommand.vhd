@@ -56,8 +56,8 @@ end SdCommand;
 
 architecture rtl of SdCommand is
 
-	-- Инициализация
-	type	TSM_SD_INIT		is (sWaitPwr, sDummy, sWaitDummy, sCmd0, sCmd8, sCmd55, sAcmd41Hc, sCmd58, sCmd16, sAcmd41Sc, sCmd1, sError, sComp, sResetPhy);	--! Управляющий автомат для инициализации
+	-- РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ
+	type	TSM_SD_INIT		is (sWaitPwr, sDummy, sWaitDummy, sCmd0, sCmd8, sCmd55, sAcmd41Hc, sCmd58, sCmd16, sAcmd41Sc, sCmd1, sError, sComp, sResetPhy);	--! РЈРїСЂР°РІР»СЏСЋС‰РёР№ Р°РІС‚РѕРјР°С‚ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
 	signal	smSdInit		: TSM_SD_INIT;
 	signal	cntrPwr			: std_logic_vector(18 downto 0);
 	signal	cntrTimeOut		: std_logic_vector(16 downto 0);
@@ -65,14 +65,14 @@ architecture rtl of SdCommand is
 	signal	cntrInitErr		: std_logic_vector( 3 downto 0);
 	signal	InitCommand		: std_logic_vector(55 downto 0);
 	signal	InitStart		: std_logic;
-	-- Входные параметры
+	-- Р’С…РѕРґРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 	signal	SdAddress		: std_logic_vector(31 downto 0);
-	-- Стирание
+	-- РЎС‚РёСЂР°РЅРёРµ
 	type	TSM_SD_ERASE	is (sIdle, sCmd32, sCmd33, sCmd38, sError, sFinish);
 	signal	smSdErase		: TSM_SD_ERASE;
 	signal	EraseCommand	: std_logic_vector(55 downto 0);
 	signal	EraseStart		: std_logic;
-	-- Чтение
+	-- Р§С‚РµРЅРёРµ
 	type	TSM_SD_READ		is (sIdle, sCmd18, sCheckResp, sWaitToken, sCheckToken, sRdPacket, sRdCrc, sWaitEndRd, sCmd12, sWaitCmd12, sError, sFinish);
 	signal	smSdRead		: TSM_SD_READ;
 	signal	ReadCommand		: std_logic_vector(55 downto 0);
@@ -83,7 +83,7 @@ architecture rtl of SdCommand is
 	signal	cntrRdErr		: std_logic_vector( 3 downto 0);
 	signal	SdDataW			: std_logic_vector(31 downto 0);
 	signal	SdDataWLast		: std_logic;
-	-- Запись
+	-- Р—Р°РїРёСЃСЊ
 	type	TSM_SD_WRITE	is (sIdle, sCmd25, sWrToken, sWrPacket, sWrCrc, sWaitBusy, sCheck, sStop, sError, sFinish);	
 	signal	smSdWrite		: TSM_SD_WRITE;
 	signal	WriteCommand	: std_logic_vector(55 downto 0);
@@ -99,7 +99,7 @@ architecture rtl of SdCommand is
 	signal	cntrWrCrc		: std_logic_vector( 0 downto 0);
 	signal	cntrWrBlock		: std_logic_vector( 5 downto 0);
 	signal	cntrWrErr		: std_logic_vector( 3 downto 0);
-	-- Формирование признаков для выполнения команды
+	-- Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РїСЂРёР·РЅР°РєРѕРІ РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹
 	signal	StartCommand	: std_logic;
 	signal	DummyCmd		: std_logic;
 	signal	UseInitCmd		: std_logic;
@@ -146,7 +146,7 @@ architecture rtl of SdCommand is
 begin
 
 	----------------------------------------------------------------------------
-	-- Инициализация
+	-- РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ
 	----------------------------------------------------------------------------
 	process (pclk) begin
 		if (rising_edge(pclk)) then
@@ -298,7 +298,7 @@ begin
 	end process;
 	
 	----------------------------------------------------------------------------
-	-- Входные параметры
+	-- Р’С…РѕРґРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 	----------------------------------------------------------------------------
 	process (pclk) begin
 		if (rising_edge(pclk)) then
@@ -326,7 +326,7 @@ begin
 	end process;
 	
 	----------------------------------------------------------------------------
-	-- Стирание
+	-- РЎС‚РёСЂР°РЅРёРµ
 	----------------------------------------------------------------------------
 	process (pclk) begin
 		if (rising_edge(pclk)) then
@@ -389,10 +389,10 @@ begin
 	end process;
 
 	----------------------------------------------------------------------------
-	-- Чтение
+	-- Р§С‚РµРЅРёРµ
 	----------------------------------------------------------------------------
-	-- При отправке sCmd12 карта прекращает чтение, даже в середине транзации. Нужно посмотреть
-	-- на нескольких картах, как это будет выглядеть.  
+	-- РџСЂРё РѕС‚РїСЂР°РІРєРµ sCmd12 РєР°СЂС‚Р° РїСЂРµРєСЂР°С‰Р°РµС‚ С‡С‚РµРЅРёРµ, РґР°Р¶Рµ РІ СЃРµСЂРµРґРёРЅРµ С‚СЂР°РЅР·Р°С†РёРё. РќСѓР¶РЅРѕ РїРѕСЃРјРѕС‚СЂРµС‚СЊ
+	-- РЅР° РЅРµСЃРєРѕР»СЊРєРёС… РєР°СЂС‚Р°С…, РєР°Рє СЌС‚Рѕ Р±СѓРґРµС‚ РІС‹РіР»СЏРґРµС‚СЊ.  
 	process (pclk) begin
 		if (rising_edge(pclk)) then
 			if (rst = '1') then
@@ -508,7 +508,7 @@ begin
 	end process;
 	
 	----------------------------------------------------------------------------
-	-- Запись
+	-- Р—Р°РїРёСЃСЊ
 	----------------------------------------------------------------------------	
 	process (pclk) begin
 		if (rising_edge(pclk)) then
@@ -652,7 +652,7 @@ begin
 	end process;
 
 	----------------------------------------------------------------------------
-	-- Формирование признаков для выполнения команды
+	-- Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РїСЂРёР·РЅР°РєРѕРІ РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹
 	----------------------------------------------------------------------------
 	process (pclk) begin
 		if (rising_edge(pclk)) then
@@ -812,8 +812,8 @@ begin
 		end if;
 	end process; 
 	
-	-- При чтении размер передавамых данных складывается из размер блока 512 байт и размера CRC 2 байта.
-	-- Вычитание единицы, т.к. осчет ведется до нуля
+	-- РџСЂРё С‡С‚РµРЅРёРё СЂР°Р·РјРµСЂ РїРµСЂРµРґР°РІР°РјС‹С… РґР°РЅРЅС‹С… СЃРєР»Р°РґС‹РІР°РµС‚СЃСЏ РёР· СЂР°Р·РјРµСЂ Р±Р»РѕРєР° 512 Р±Р°Р№С‚ Рё СЂР°Р·РјРµСЂР° CRC 2 Р±Р°Р№С‚Р°.
+	-- Р’С‹С‡РёС‚Р°РЅРёРµ РµРґРёРЅРёС†С‹, С‚.Рє. РѕСЃС‡РµС‚ РІРµРґРµС‚СЃСЏ РґРѕ РЅСѓР»СЏ
 	process (pclk) begin
 		if (rising_edge(pclk)) then
 			if (smSdCommand = sCommand) then
@@ -854,8 +854,8 @@ begin
 		end if;
 	end process;
 	
-	-- При выполнении команд чтения/записи сигнал CS должен быть перевден в состояние единицы
-	-- только после завершения всей транзакции.
+	-- РџСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РєРѕРјР°РЅРґ С‡С‚РµРЅРёСЏ/Р·Р°РїРёСЃРё СЃРёРіРЅР°Р» CS РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРµСЂРµРІРґРµРЅ РІ СЃРѕСЃС‚РѕСЏРЅРёРµ РµРґРёРЅРёС†С‹
+	-- С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ РІСЃРµР№ С‚СЂР°РЅР·Р°РєС†РёРё.
 	process (pclk) begin
 		if (rising_edge(pclk)) then
 			PhyMode(4) <= bool_to_logic((smSdCommand = sRxData and UseWriteCmd = '0') or (smSdCommand = sRxBusy and smSdWrite /= sWaitBusy) or 
